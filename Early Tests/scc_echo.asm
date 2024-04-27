@@ -1,7 +1,7 @@
 ;*******************************************************************************
 ; FILE    scc_echo.asm
 ; PROJECT Serial Echo
-; AUThOR  ImpendingMoon
+; AUTHOR  ImpendingMoon
 ; DATE    2024-04-26
 ; Sets up the SCC to echo back any character at 9600 baud
 ;*******************************************************************************
@@ -12,18 +12,18 @@ SCC_BD: EQU %00000010
 SCC_AC: EQU %00000100
 SCC_AD: EQU %00000110
 
-    ORG 0h
+    ORG     0h
     jp      start
 
     ; Padding because z80asm doesn't add any bytes...
-    DEFS 38h-$
+    DEFS    38h-$
 
-    ORG 38h
+    ORG     38h
     reti
 
-    DEFS 100h-$
+    DEFS    100h-$
 
-    ORG 100h
+    ORG     100h
 start:
     ; Reset SCC
     ld      A, 9                        ; Select R9
@@ -113,6 +113,6 @@ start:
     ld      A, 11000001b                ; 8-bit, Enable Rx
     out     (SCC_AC), A
 
-end:
+finish:
     halt
-    jr      end
+    jr      finish
