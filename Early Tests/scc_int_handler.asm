@@ -20,28 +20,34 @@ SCC_AD: EQU 00000110b
     DS      38h-$
     ORG     38h
 _int:
+    EX      AF, AF'
     EXX
-    
     ; Read the interrupt vector with status bits to get jump vector
     LD      A, 2                        ; Select Register 2
     OUT     (SCC_BC), A
-    IN      A, (SCC_BC)                 ; Read interrupt vector
-    LD      H, 0                        ; Move it to HL
+    IN      A, (SCC_BC)                 ; Read vector w/ status
+    LD      H, 0                        ; Move to HL
     LD      L, A
 
-    LD      BC, _int_end                ; Fake call by pushing return address
-    PUSH    BC                          
-    LD      E, (HL)                     ; Get interrupt handler from vector
+    ; Get interrupt handler address from vector
+    LD      E, (HL)
     INC     HL
     LD      D, (HL)
-    EX      DE, HL                      ; Put address of handler into HL
-    JP      (HL)                        ; Jump to interrupt handler
+
+    ; Jump to interrupt handler
+    EX      DE, HL
+    JP      (HL)
 
 _int_end:
+    ; Reset highest Interrupt Under Service status in SCC
+    LD      A, 00111000b
+    OUT     (SCC_AC), A
+
     EXX
     EI
     RETI
 
+; Can be odd-aligned
 _int_handlers:
     DW      _int_end                    ; B Tx Empty
     DW      _int_end                    ; B External/Status
@@ -95,21 +101,18 @@ SCC_INIT_ROUTINE:
 SCC_INIT_ROUTINE_END:
 SCC_INIT_NUM_CMDS: EQU SCC_INIT_ROUTINE_END-SCC_INIT_ROUTINE
 
+
+
 _int_rx_handler:
-    ; EXX/EI already handled by _int routine
+    IN      A, (SCC_AD)                 ; Not handling status yet
+    OUT     (SCC_AD), A                 ; Just echo back char
 
-    ; Check for status
-    LD      A, 1
+.end_int_rx_handler:
+    ; Reset highest Interrupt Under Service status in SCC
+    LD      A, 00111000b
     OUT     (SCC_AC), A
-    IN      A, (SCC_AC)
-    AND     A
-    JR      NZ, .handle_status          ; If status is not zero, framing error
 
-    IN      A, (SCC_AD)                 ; Read the character
-    OUT     (SCC_AD), A                 ; Echo it back
-    RET
-
-.handle_status:
-    ; For now, just don't echo it back
-    IN      A, (SCC_AD)
-    RET
+    EX      AF, AF'
+    EXX
+    EI
+    RETI
