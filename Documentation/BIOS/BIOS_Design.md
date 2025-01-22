@@ -68,13 +68,15 @@ All non-return registers except for `AF` are preserved by the function.
 6. 0x04 - Register Alarm Function
 - Sets a function to call after at least a number of milliseconds
 - Setting to a NULL pointer ($0000) clears the alarm function
-- The alarm function is responsible for preserving register values and cannot use
-the alternate register set
+- The alarm function is called in the interrupt service routine and with the
+alternate register set. The function is responsible for exchanging registers,
+enabling interrupts, and returning using `RETI`.
 - Parameters:
     - HL: Address of function
     - E: Repeat
         - 0: Clear alarm after it is called
         - 1: Repeat alarm until it is changed
+- Returns: None
 
 ## Video
 

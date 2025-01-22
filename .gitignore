@@ -1,4 +1,7 @@
 **/.vscode/
 **/.idea/
 **.swp
-
+**.bin
+**.lst
+**.sym
+**.desktop
