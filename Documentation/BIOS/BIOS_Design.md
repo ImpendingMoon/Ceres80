@@ -252,15 +252,7 @@ bit-shift algorithm
 - Returns:
     - HL: Product
 
-2. 0x41 - Multiply 16-bit
-- Multiplies two 16-bit integers into one 32-bit integer using repeated addition
-- Parameters:
-    - HL: Multiplicand
-    - DE: Multiplier
-- Returns:
-    - HLDE: Product
-
-3. 0x42 - Divide 8-bit
+2. 0x41 - Divide 8-bit
 - Divides two unsigned 8-bit integers into two 8-bit integers using a bit-shift
 algorithm
 - Parameters:
@@ -269,16 +261,6 @@ algorithm
 - Returns:
     - A: Quotient
     - L: Remainder
-
-4. 0x43 - Divide 16-bit
-- Divides two unsigned 16-bit integers into two 16-bit integers using repeated
-subtraction
-- Parameters:
-    - HL: Dividend
-    - DE: Divisor
-- Returns:
-    - HL: Quotient
-    - DE: Remainder
 
 ## Conversion
 
