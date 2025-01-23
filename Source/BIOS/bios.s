@@ -1,6 +1,10 @@
 ;******************************************************************************
 ; CONSTANTS
 ;******************************************************************************
+BIOS_MAJOR_VER: EQU 0
+BIOS_MINOR_VER: EQU 0
+BIOS_PATCH_VER: EQU 1
+
 CTC_CH0: EQU %0000
 CTC_CH1: EQU %0001
 CTC_CH2: EQU %0010
@@ -158,16 +162,27 @@ _start:
     ; Initialize SD Card
 
     ; TEMP: Print stuff to the display
+    CALL i_lcd_wait
+    LD A, %01000000                     ; Set Y=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL i_lcd_wait
+    LD A, %10111000                     ; Set X=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
     LD B, 1
 .draw_loop:
     CALL i_lcd_wait
     LD A, B
     OUT (LCD_D1), A
     OUT (LCD_D2), A
-    RRCA
+    RLCA
     LD B, A
+    LD A, 0x03
     LD HL, 1000
-    CALL i_sleep
+    RST $08
     JR .draw_loop
 
 .end:
