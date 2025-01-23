@@ -10,8 +10,8 @@ PIO_BD: EQU %0101
 PIO_AC: EQU %0110
 PIO_BC: EQU %0111
 LCD_C1: EQU %1000
-LCD_C2: EQU %1001
-LCD_D1: EQU %1010
+LCD_D1: EQU %1001
+LCD_C2: EQU %1010
 LCD_D2: EQU %1011
 
 STACK_CANARY: EQU $A7
@@ -30,13 +30,13 @@ call_handler:
     PUSH DE
     PUSH HL
 
-    RLCA                                ; Multiply call by 2 for address
-    LD E, A                             ; Load into 16-bit reg for offset
+    RLCA                                ; Multiply call by 2 for address offset
+    LD E, A                             ; Load into 16-bit reg to add offset
     LD D, 0
 
     LD A, (stack_base)                  ; Check for stack overflows
     CP STACK_CANARY
-    JP Z, bad_canary
+    JR NZ, bad_canary
 
     LD HL, call_table                   ; Point to offset in call_table
     ADD HL, DE
@@ -45,15 +45,24 @@ call_handler:
     INC HL
     LD D, (HL)
     EX DE, HL                           ; Move address into HL for jump
-    JP (HL)                             ; Called function does cleanup
+    JP (HL)                             ; Called function does cleanup and ret
 
 bad_canary:
+    LD SP, $FFFF                        ; Stack already bad, reset
+    LD HL, 0
+    ;CALL i_set_charmap                  ; Charmap might be clobbered, reset
+    ;LD DE, str_bad_canary              ; Print error message at 0,0
+    ;CALL i_print_string
+
+.canary_input:
+    ;CALL i_get_buttons
+    AND L                               ; Get only newly pressed buttons
+    JP Z, .canary_input                 ; Wait for any button press then reset
     RST $00
 
 invalid_call:
     POP HL
     POP DE
-
     RET
 
     ; MAX: 48 bytes between call_handler and isr
@@ -70,16 +79,16 @@ isr:
     LD HL, (system_ticks)       ; 3b 16c
     ADD HL, DE                  ; 1b 11c
     LD (system_ticks), HL       ; 3b 16c
-    JP NC, check_alarm         ; 3b 10c
+    JP NC, .check_alarm         ; 3b 10c
     LD HL, (system_ticks + 2)   ; 3b 16c
     ADD HL, DE                  ; 1b 11c
     LD (system_ticks), HL       ; 3b 16c
 
-check_alarm:
+.check_alarm:
     LD A, (alarm_set)
-    JP Z, end_isr
+    JP Z, .end_isr
 
-update_alarm:
+.update_alarm:
     LD HL, (alarm_timer)
     DEC HL
     LD (alarm_timer), HL
@@ -88,25 +97,26 @@ update_alarm:
     XOR A
     LD HL, (alarm_timer)
     CP L
-    JP NZ, end_isr
+    JP NZ, .end_isr
     CP H
-    JP NZ, end_isr
+    JP NZ, .end_isr
 
+    ; Reset timer
     LD HL, (alarm_tc)
     LD (alarm_timer), HL
 
     ; If alarm_repeat is set, don't clear alarm
     LD A, (alarm_repeat)
     CP 0
-    JR NZ, run_alarm
+    JR NZ, .run_alarm
 
     XOR A
     LD (alarm_set), A
-run_alarm:
+.run_alarm:
     LD HL, (alarm_address)
     JP (HL)
 
-end_isr:
+.end_isr:
     EXX
     EX AF, AF'
     EI
@@ -128,7 +138,7 @@ _start:
     LD (stack_base), A
 
     ; Initialize Timer
-    LD A, %10100111                     ; Int, 256ps, reset, tc follows
+    LD A, %10100111                     ; Int, 256ps, tc follows
     OUT (CTC_CH0), A
     LD A, CTC_TC
     OUT (CTC_CH0), A
@@ -137,36 +147,49 @@ _start:
     EI
 
     ; Initialize LCD
-    ;CALL i_lcd_render
-    ;CALL i_lcd_wait
-    LD A, %00000001
+    LD A, %00111111                     ; Display On
     OUT (LCD_C1), A
     OUT (LCD_C2), A
-    ;CALL i_lcd_wait
-
-    ; TEST: Wait a bit and print a simple thing to the LCD
-    HALT
-    HALT
-    LD A, %10101010
-    OUT (LCD_D1), A
-    OUT (LCD_D2), A
-
+    CALL i_lcd_wait
+    LD A, %11000000                     ; Start line 0 (reset scroll)
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
 
     ; Initialize SD Card
 
+    ; TEMP: Print stuff to the display
+    LD B, 1
+.draw_loop:
+    CALL i_lcd_wait
+    LD A, B
+    OUT (LCD_D1), A
+    OUT (LCD_D2), A
+    RRCA
+    LD B, A
+    LD HL, 1000
+    CALL i_sleep
+    JR .draw_loop
 
+.end:
+    ; Eventually this will load the shell program or wait for an SD Card
     HALT
+    JR .end
 
+    INCLUDE "control.s"
+    INCLUDE "display.s"
     INCLUDE "call_table.s"
 
 
+
+;*******************************************************************************
+; RAM
+;*******************************************************************************
     ORG $F800
 framebuffer:
 
     ORG $F900
 bios_work_ram:
 
-; Weird endianness (3412) Use as two 16-bit values to load correctly
 system_ticks: DS 4
 
 alarm_address: DS 2
