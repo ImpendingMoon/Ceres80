@@ -76,17 +76,19 @@ isr:
     EXX
     EX AF, AF'
 
-    ; Update system ticks
-    ; Use ADD because INC HL doesn't set flags for carry detection
-    ; 20b 63/106c
-    LD DE, 1                    ; 3b 10c
-    LD HL, (system_ticks)       ; 3b 16c
-    ADD HL, DE                  ; 1b 11c
-    LD (system_ticks), HL       ; 3b 16c
-    JP NC, .check_alarm         ; 3b 10c
-    LD HL, (system_ticks + 2)   ; 3b 16c
-    ADD HL, DE                  ; 1b 11c
-    LD (system_ticks), HL       ; 3b 16c
+    ; Increment system ticks
+    ; 16b 34/58/82/93c (34c 99.6% of runs)
+    LD HL, system_ticks         ; 3b 10c
+    INC (HL)                    ; 1b 11c
+    JR NC, .check_alarm         ; 2b 13/7c
+    INC HL                      ; 1b 6c
+    INC (HL)                    ; 1b 11c
+    JR NC, .check_alarm         ; 2b 13/7c
+    INC HL                      ; 1b 6c
+    INC (HL)                    ; 1b 11c
+    JR NC, .check_alarm         ; 2b 13/7c
+    INC HL                      ; 1b 6c
+    INC (HL)                    ; 1b 11c
 
 .check_alarm:
     LD A, (alarm_set)
@@ -160,30 +162,6 @@ _start:
     OUT (LCD_C2), A
 
     ; Initialize SD Card
-
-    ; TEMP: Print stuff to the display
-    CALL i_lcd_wait
-    LD A, %01000000                     ; Set Y=0
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
-
-    CALL i_lcd_wait
-    LD A, %10111000                     ; Set X=0
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
-
-    LD B, 1
-.draw_loop:
-    CALL i_lcd_wait
-    LD A, B
-    OUT (LCD_D1), A
-    OUT (LCD_D2), A
-    RLCA
-    LD B, A
-    LD A, 0x03
-    LD HL, 1000
-    RST $08
-    JR .draw_loop
 
 .end:
     ; Eventually this will load the shell program or wait for an SD Card
