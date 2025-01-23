@@ -1,32 +1,59 @@
 ;**
-; e_exit: External function for Exit
-; Parameters:
-; - None
-; Returns:
-; - N/A
+; exit: Exit
+; Exits the current program and restarts the shell (by resetting the system...)
+; Parameters: None
+; Returns: N/A
 ;**
 e_exit:
+i_exit:
     RST $00
 
 
-;**
-; e_sleep: External function for Sleep Milliseconds
-; Halts the system for at least a number of milliseconds
-; Parameters:
-; - HL (stack): Milliseconds to sleep
-; Returns: None
-e_sleep:
-    POP HL                              ; Pop parameters from stack
-    POP DE
 
 ;**
-; i_sleep: Internal function for Sleep Milliseconds
+; get_bios_version: Get BIOS Version
+; Gets the current BIOS version as three integers
+; Parameters: None
+; Returns: None
+;**
+e_get_bios_version:
+    POP HL
+    POP DE
+i_get_bios_version:
+    LD A, BIOS_MAJOR_VER
+    LD L, BIOS_MINOR_VER
+    LD H, BIOS_PATCH_VER
+    RET
+
+
+
+;**
+; get_system_ticks: Get System Ticks
+; Gets the number of milliseconds the system has been running
+; Parameters: None
+; Returns: None
+;**
+e_get_system_ticks:
+    POP HL
+    POP DE
+i_get_system_ticks:
+    LD HL, (system_ticks+2)
+    EX DE, HL
+    LD HL, (system_ticks)
+    RET
+
+
+
+;**
+; sleep: Sleep Milliseconds
 ; Halts the system for at least a number of milliseconds
 ; Parameters:
 ; - HL: Milliseconds to sleep
-; Returns:
-; - None
+; Returns: None
 ;**
+e_sleep:
+    POP HL                              ; Pop parameters from stack
+    POP DE
 i_sleep:
     PUSH BC
     XOR A
