@@ -3,7 +3,7 @@
 ;******************************************************************************
 BIOS_MAJOR_VER: EQU 0
 BIOS_MINOR_VER: EQU 0
-BIOS_PATCH_VER: EQU 1
+BIOS_PATCH_VER: EQU 2
 
 CTC_CH0: EQU %0000
 CTC_CH1: EQU %0001
@@ -34,7 +34,7 @@ call_handler:
     PUSH DE
     PUSH HL
 
-    RLCA                                ; Multiply call by 2 for address offset
+    ADD A                               ; Multiply call by 2 for address offset
     LD E, A                             ; Load into 16-bit reg to add offset
     LD D, 0
 
@@ -163,32 +163,18 @@ _start:
 
     ; TEMP: Draw stuff to make sure I actually know how
 .draw_temp:
-    CALL i_lcd_wait
-    LD A, %01000000                     ; Set Y=0
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
+    LD HL, smail
+    LD DE, framebuffer
+    LD BC, 1024
+    LDIR
 
-    LD C, 0                             ; X coordinate counter
-    LD B, 8                             ; Number of rows to send
-.draw_row:
-    CALL i_lcd_wait
-    LD A, %10111000                     ; Set X coordinate command
-    OR C                                ; Mask coordinate onto command
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
-
-    PUSH BC
-    LD B, 64                            ; 64 Y columns per side
-.draw_row_loop:
-    CALL i_lcd_wait
-    LD A, %10101010                     ; Whatever recognizable pattern
-    OUT (LCD_D1), A
-    OUT (LCD_D2), A
-    DJNZ .draw_row_loop
-    POP BC
-
-    INC C                               ; Increment X coordinate
-    DJNZ .draw_row
+.loop:
+    CALL i_render
+    LD HL, framebuffer
+    RLC (HL)
+    LD HL, 500
+    CALL i_sleep
+    JR .loop
 
 .end:
     ; Eventually this will load the shell program or wait for an SD Card
@@ -199,6 +185,8 @@ _start:
     INCLUDE "display.s"
     INCLUDE "call_table.s"
 
+smail:
+    INCBIN "smail.img"
 
 
 ;*******************************************************************************

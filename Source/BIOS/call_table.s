@@ -1,4 +1,3 @@
-; 128 vector entries
 call_table:
     DW e_exit
     DW e_get_bios_version
@@ -24,8 +23,8 @@ call_table:
     DW invalid_call
     DW invalid_call
     DW invalid_call
-    DW invalid_call
-    DW invalid_call
+    DW e_clear_screen
+    DW e_render
     DW invalid_call
     DW invalid_call
     DW invalid_call
