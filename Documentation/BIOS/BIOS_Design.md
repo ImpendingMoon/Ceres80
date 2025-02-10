@@ -261,7 +261,26 @@ algorithm
 - Returns:
     - A: Quotient
     - L: Remainder
+    
+3. 0x42 - Multiply Signed 8-bit
+- Multiplies two signed 8-bit integers into one 16-bit integer using a
+bit-shift algorithm
+- Parameters:
+    - L: Multiplicand
+    - H: Multiplier
+- Returns:
+    - HL: Product
 
+2. 0x43 - Divide Signed 8-bit
+- Divides two signed 8-bit integers into two 8-bit integers using a bit-shift
+algorithm
+- Parameters:
+    - L: Dividend
+    - H: Divisor
+- Returns:
+    - A: Quotient
+    - L: Remainder
+    
 ## Conversion
 
 1. 0x50 - ASCII to Integer
