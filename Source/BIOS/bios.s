@@ -78,20 +78,21 @@ isr:
 
     ; Increment system ticks
     ; 16b 34/58/82/93c (34c 99.6% of runs)
-    LD HL, system_ticks         ; 3b 10c
-    INC (HL)                    ; 1b 11c
-    JR NC, .check_alarm         ; 2b 13/7c
-    INC HL                      ; 1b 6c
-    INC (HL)                    ; 1b 11c
-    JR NC, .check_alarm         ; 2b 13/7c
-    INC HL                      ; 1b 6c
-    INC (HL)                    ; 1b 11c
-    JR NC, .check_alarm         ; 2b 13/7c
-    INC HL                      ; 1b 6c
-    INC (HL)                    ; 1b 11c
+    LD HL, system_ticks
+    INC (HL)
+    JR NC, .check_alarm
+    INC HL
+    INC (HL)
+    JR NC, .check_alarm
+    INC HL
+    INC (HL)
+    JR NC, .check_alarm
+    INC HL
+    INC (HL)
 
 .check_alarm:
     LD A, (alarm_set)
+    AND 1
     JP Z, .end_isr
 
 .update_alarm:
@@ -99,7 +100,7 @@ isr:
     DEC HL
     LD (alarm_timer), HL
 
-   ; If zero, call the alarm function
+    ; If zero, call the alarm function
     XOR A
     LD HL, (alarm_timer)
     CP L
@@ -153,15 +154,41 @@ _start:
     EI
 
     ; Initialize LCD
-    LD A, %00111111                     ; Display On
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
     CALL i_lcd_wait
-    LD A, %11000000                     ; Start line 0 (reset scroll)
+    LD A, %00111111                     ; Display On
     OUT (LCD_C1), A
     OUT (LCD_C2), A
 
     ; Initialize SD Card
+
+    ; TEMP: Draw stuff to make sure I actually know how
+.draw_temp:
+    CALL i_lcd_wait
+    LD A, %01000000                     ; Set Y=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    LD C, 0                             ; X coordinate counter
+    LD B, 8                             ; Number of rows to send
+.draw_row:
+    CALL i_lcd_wait
+    LD A, %10111000                     ; Set X coordinate command
+    OR C                                ; Mask coordinate onto command
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    PUSH BC
+    LD B, 64                            ; 64 Y columns per side
+.draw_row_loop:
+    CALL i_lcd_wait
+    LD A, %10101010                     ; Whatever recognizable pattern
+    OUT (LCD_D1), A
+    OUT (LCD_D2), A
+    DJNZ .draw_row_loop
+    POP BC
+
+    INC C                               ; Increment X coordinate
+    DJNZ .draw_row
 
 .end:
     ; Eventually this will load the shell program or wait for an SD Card
@@ -196,4 +223,3 @@ stack_base:
 
     ORG $FFFF
 stack_top:
-
