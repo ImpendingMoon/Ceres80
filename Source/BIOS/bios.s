@@ -80,49 +80,15 @@ isr:
     ; 16b 34/58/82/93c (34c 99.6% of runs)
     LD HL, system_ticks
     INC (HL)
-    JR NC, .check_alarm
+    JR NC, .end_isr
     INC HL
     INC (HL)
-    JR NC, .check_alarm
+    JR NC, .end_isr
     INC HL
     INC (HL)
-    JR NC, .check_alarm
+    JR NC, .end_isr
     INC HL
     INC (HL)
-
-.check_alarm:
-    LD A, (alarm_set)
-    AND 1
-    JP Z, .end_isr
-
-.update_alarm:
-    LD HL, (alarm_timer)
-    DEC HL
-    LD (alarm_timer), HL
-
-    ; If zero, call the alarm function
-    XOR A
-    LD HL, (alarm_timer)
-    CP L
-    JP NZ, .end_isr
-    CP H
-    JP NZ, .end_isr
-
-    ; Reset timer
-    LD HL, (alarm_tc)
-    LD (alarm_timer), HL
-
-    ; If alarm_repeat is set, don't clear alarm
-    LD A, (alarm_repeat)
-    CP 0
-    JR NZ, .run_alarm
-
-    XOR A
-    LD (alarm_set), A
-.run_alarm:
-    LD HL, (alarm_address)
-    JP (HL)
-
 .end_isr:
     EXX
     EX AF, AF'
@@ -158,23 +124,46 @@ _start:
     LD A, %00111111                     ; Display On
     OUT (LCD_C1), A
     OUT (LCD_C2), A
+ 
+    CALL i_lcd_wait
+    LD A, %01000000                     ; Set Y=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL i_lcd_wait
+    LD A, %11000000                     ; Set Z=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
 
     ; Initialize SD Card
 
     ; TEMP: Draw stuff to make sure I actually know how
 .draw_temp:
-    LD HL, smail
-    LD DE, framebuffer
-    LD BC, 1024
+    LD HL, framebuffer
+    LD (HL), %00001111
+    LD DE, framebuffer+1
+    LD BC, 1024-1
     LDIR
 
-.loop:
-    CALL i_render
+.shift_loop_outer:
     LD HL, framebuffer
-    RLC (HL)
+    LD B, FB_HEIGHT_PX
+.shift_loop_inner:
+    PUSH BC
+    LD B, FB_WIDTH_TILES
+.shift_loop_yeah:
+    LD A, $FF
+    XOR (HL)
+    LD (HL), A
+    INC HL
+    DJNZ .shift_loop_yeah
+    POP BC
+    DJNZ .shift_loop_inner
+    CALL i_render
     LD HL, 500
     CALL i_sleep
-    JR .loop
+    JP .shift_loop_outer
 
 .end:
     ; Eventually this will load the shell program or wait for an SD Card
@@ -186,10 +175,6 @@ _start:
     INCLUDE "math.s"
     INCLUDE "call_table.s"
 
-smail:
-    INCBIN "smail.img"
-
-
 ;*******************************************************************************
 ; RAM
 ;*******************************************************************************
@@ -200,12 +185,6 @@ framebuffer:
 bios_work_ram:
 
 system_ticks: DS 4
-
-alarm_address: DS 2
-alarm_timer: DS 2
-alarm_tc: DS 2
-alarm_set: DS 1
-alarm_repeat: DS 1
 button_state: DS 1
 rng_state: DS 4
 rng_scratch: DS 4
