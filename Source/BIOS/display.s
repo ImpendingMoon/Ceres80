@@ -11,13 +11,19 @@ PX_PER_TILE: EQU 8
 ; Returns: None
 ;**
 i_lcd_wait:
+    PUSH BC
+.lcd_wait_loop:
+    LD B, 17
+    DJNZ $
+
     IN A, (LCD_C1)
     RLCA
     JR C, i_lcd_wait
     IN A, (LCD_C2)
     RLCA
-    JR C, i_lcd_wait
+    JR C, .lcd_wait_loop
     
+    POP BC
     RET
 
 
@@ -74,16 +80,16 @@ i_render:
     INC C                               ; Increment counter
     OUT (LCD_C1), A
     OUT (LCD_C2), A
+    CALL i_lcd_wait
 
     LD DE, FB_WIDTH_TILES               ; Add width to point to next row
 
     PUSH BC
     LD B, FB_WIDTH_TILES / 2
-.render_row:
-    CALL i_lcd_wait
+.render_row_left:
     PUSH BC
     LD C, FB_WIDTH_TILES / 2
-.render_left_side:
+.render_left_tile:
     PUSH HL                             ; Save pointer
     LD B, PX_PER_TILE
 .render_left_tile_row:
@@ -94,14 +100,21 @@ i_render:
     DJNZ .render_left_tile_row
 
     OUT (LCD_D1), A                     ; Send column
+    CALL i_lcd_wait
 
     POP HL                              ; Restore original pointer
     DEC C
-    JR NZ, .render_left_side
+    JR NZ, .render_left_tile
+ 
+    POP BC
+    INC HL
+    DJNZ .render_row_left
 
-    CALL i_lcd_wait
+    LD B, FB_WIDTH_TILES / 2
+.render_row_right:
+    PUSH BC
     LD C, FB_WIDTH_TILES / 2
-.render_right_side:
+.render_right_tile:
     PUSH HL                             ; Save pointer
     LD B, PX_PER_TILE
 .render_right_tile_row:
@@ -112,14 +125,15 @@ i_render:
     DJNZ .render_right_tile_row
 
     OUT (LCD_D2), A                     ; Send column
+    CALL i_lcd_wait
 
     POP HL                              ; Restore original pointer
     DEC C
-    JR NZ, .render_right_side
-
+    JR NZ, .render_right_tile
+ 
     POP BC
     INC HL
-    DJNZ .render_row
+    DJNZ .render_row_right
 
     POP BC
     LD DE, FB_WIDTH_TILES * PX_PER_TILE

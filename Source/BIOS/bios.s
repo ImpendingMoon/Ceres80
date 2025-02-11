@@ -135,6 +135,10 @@ _start:
     OUT (LCD_C1), A
     OUT (LCD_C2), A
 
+    CALL i_lcd_wait
+    LD A, %10111000                     ; Set X=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
 
     ; Initialize SD Card
     
