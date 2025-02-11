@@ -121,6 +121,7 @@ i_rotate_send_tile:
 
     LD DE, FB_WIDTH_TILES               ; Add width to point to next row
 
+    DI                                  ; Don't let ISR see intermediate fb
     LD B, 8                             ; 8 rows per tile
 .render_tile:
     PUSH HL                             ; Save pointer
@@ -138,6 +139,7 @@ i_rotate_send_tile:
     POP HL                              ; Restore original pointer
 
     DJNZ .render_tile
+    EI                                  ; Framebuffer is in good state again
 
     POP DE
     POP BC

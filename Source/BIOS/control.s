@@ -55,15 +55,13 @@ e_sleep:
     POP HL                              ; Pop parameters from stack
     POP DE
 i_sleep:
-    XOR A
     HALT                                ; Halt first for minimum time guarantee
 .i_delay_loop:
     HALT
     DEC HL
-    CP L
-    JP NZ, .i_delay_loop
-    CP H
-    JP NZ, .i_delay_loop
+    LD A, L
+    OR H
+    JR NZ, .i_delay_loop
 
     RET
 
