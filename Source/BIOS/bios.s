@@ -137,35 +137,16 @@ _start:
 
 
     ; Initialize SD Card
-
-    ; TEMP: Draw stuff to make sure I actually know how
-.draw_temp:
-    LD HL, framebuffer
-    LD (HL), %00001111
-    LD DE, framebuffer+1
-    LD BC, 1024-1
+    
+.draw_test:
+    LD HL, smail
+    LD DE, framebuffer
+    LD BC, 1024
     LDIR
 
-.shift_loop_outer:
-    LD HL, framebuffer
-    LD B, FB_HEIGHT_PX
-.shift_loop_inner:
-    PUSH BC
-    LD B, FB_WIDTH_TILES
-.shift_loop_yeah:
-    LD A, $FF
-    XOR (HL)
-    LD (HL), A
-    INC HL
-    DJNZ .shift_loop_yeah
-    POP BC
-    DJNZ .shift_loop_inner
     CALL i_render
-    LD HL, 500
-    CALL i_sleep
-    JP .shift_loop_outer
 
-.end:
+    .end:
     ; Eventually this will load the shell program or wait for an SD Card
     HALT
     JR .end
@@ -174,6 +155,9 @@ _start:
     INCLUDE "display.s"
     INCLUDE "math.s"
     INCLUDE "call_table.s"
+
+smail:
+    INCBIN "smail.img"
 
 ;*******************************************************************************
 ; RAM
