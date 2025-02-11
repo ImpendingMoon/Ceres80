@@ -62,10 +62,10 @@ call_table:
     DW invalid_call
     DW invalid_call
     DW invalid_call
-    DW invalid_call
-    DW invalid_call
-    DW invalid_call
-    DW invalid_call
+    DW e_mul8
+    DW e_div8
+    DW e_mul16
+    DW e_div16
     DW invalid_call
     DW invalid_call
     DW invalid_call

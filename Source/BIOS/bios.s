@@ -183,6 +183,7 @@ _start:
 
     INCLUDE "control.s"
     INCLUDE "display.s"
+    INCLUDE "math.s"
     INCLUDE "call_table.s"
 
 smail:
@@ -205,6 +206,9 @@ alarm_timer: DS 2
 alarm_tc: DS 2
 alarm_set: DS 1
 alarm_repeat: DS 1
+button_state: DS 1
+rng_state: DS 4
+rng_scratch: DS 4
 
     ORG $FD00
 stack_base:

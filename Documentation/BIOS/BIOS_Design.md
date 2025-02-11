@@ -255,6 +255,7 @@ bit-shift algorithm
 2. 0x41 - Divide 8-bit
 - Divides two unsigned 8-bit integers into two 8-bit integers using a bit-shift
 algorithm
+- Does not check for Divide By Zero, returns garbage
 - Parameters:
     - L: Dividend
     - H: Divisor
@@ -262,24 +263,25 @@ algorithm
     - A: Quotient
     - L: Remainder
     
-3. 0x42 - Multiply Signed 8-bit
-- Multiplies two signed 8-bit integers into one 16-bit integer using a
+3. 0x42 - Multiply 16-bit
+- Multiplies two unsigned 8-bit integers into one 16-bit integer using a
 bit-shift algorithm
 - Parameters:
-    - L: Multiplicand
-    - H: Multiplier
+    - HL: Multiplicand
+    - DE: Multiplier
 - Returns:
-    - HL: Product
+    - HLDE: Product
 
-2. 0x43 - Divide Signed 8-bit
-- Divides two signed 8-bit integers into two 8-bit integers using a bit-shift
+4. 0x43 - Divide 16-bit
+- Divides two unsigned 16-bit integers into two 16-bit integers using a bit-shift
 algorithm
+- Does not check for Divide By Zero, returns garbage
 - Parameters:
-    - L: Dividend
-    - H: Divisor
+    - HL: Dividend
+    - DE: Divisor
 - Returns:
-    - A: Quotient
-    - L: Remainder
+    - HL: Quotient
+    - DE: Remainder
     
 ## Conversion
 
@@ -289,11 +291,9 @@ algorithm
     - HL: Pointer to a null-terminated string
 - Returns:
     - A: Status
-        - 0: Success, Unsigned Result
-        - 1: Success, Signed Result
-        - 2: Out of Bounds, Unsigned Result
-        - 3: Out of Bounds, Signed Result
-        - 4: Not A Number
+        - 0: Success
+        - 1: Out of Bounds
+        - 2: Not a Number
     - HL: Converted Integer
 
 2. 0x51 - Integer to ASCII
