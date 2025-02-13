@@ -1,6 +1,4 @@
-FB_WIDTH_PX: EQU 128
 FB_WIDTH_TILES: EQU 16
-FB_HEIGHT_PX: EQU 64
 FB_HEIGHT_TILES: EQU 8
 PX_PER_TILE: EQU 8
 
@@ -12,19 +10,51 @@ PX_PER_TILE: EQU 8
 ;**
 i_lcd_wait:
     PUSH BC
+    LD C, %1001000                      ; Mask BUSY and RST bits
 .lcd_wait_loop:
     LD B, 17
     DJNZ $
 
     IN A, (LCD_C1)
-    RLCA
-    JR C, i_lcd_wait
+    AND C
+    JR NZ, .lcd_wait_loop
     IN A, (LCD_C2)
-    RLCA
-    JR C, .lcd_wait_loop
+    AND C
+    JR NZ, .lcd_wait_loop
     
     POP BC
     RET
+
+
+
+;**
+; init_lcd: Initialize LCD
+; Resets the LCD's X,Y,Z registers and turns the display on
+; Parameters: None
+; Returns: None
+;**
+i_init_lcd:
+    CALL i_lcd_wait
+    LD A, %00111111                     ; Display On
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL i_lcd_wait
+    LD A, %01000000                     ; Set Y=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL i_lcd_wait
+    LD A, %11000000                     ; Set Z=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL i_lcd_wait
+    LD A, %10111000                     ; Set X=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+    RET
+
 
 
 ;**
@@ -53,15 +83,6 @@ i_clear_screen:
     RET
 
 
-
-;**
-; render: Render Framebuffer
-; Blits data in the framebuffer to the LCD
-; Parameters: None
-; Returns: None
-; Notes:
-; - Cannot optimize rotation and sending further: Already faster than LCD
-;**
 e_render:
     POP HL
     POP DE
@@ -69,78 +90,73 @@ i_render:
     PUSH BC
     PUSH DE
     PUSH HL
-    LD HL, framebuffer                  ; Point to the framebuffer
 
-    DI
-    LD B, FB_HEIGHT_TILES
-.render_rows:
     CALL i_lcd_wait
-    LD A, %10111000                     ; Command Set X
-    OR C                                ; Mask counter
-    INC C                               ; Increment counter
+    LD HL, framebuffer
+    LD C, FB_HEIGHT_TILES
+.render_rows:
+    LD A, 8                             ; X = 8 - C (0, 1, ..., 7)
+    SUB C
+    AND %111
+    OR %10111000                        ; LCD Command: Set X
     OUT (LCD_C1), A
     OUT (LCD_C2), A
     CALL i_lcd_wait
 
-    LD DE, FB_WIDTH_TILES               ; Add width to point to next row
-
-    PUSH BC
+    LD DE, FB_WIDTH_TILES               ; Add to HL to index next row
     LD B, FB_WIDTH_TILES / 2
-.render_row_left:
+.render_left_tiles:
     PUSH BC
-    LD C, FB_WIDTH_TILES / 2
-.render_left_tile:
-    PUSH HL                             ; Save pointer
+    LD C, PX_PER_TILE
+.render_left_tile_cols:
+    PUSH HL                             ; Save original pointer
     LD B, PX_PER_TILE
-.render_left_tile_row:
-    ; Rotate leftmost pixel from each row into a new column
-    RLC (HL)                            ; Rotate pixel from row
-    RRA                                 ; Rotate into new column
-    ADD HL, DE                          ; Point to next row
-    DJNZ .render_left_tile_row
+.render_left_tile_rows:
+    RLC (HL)                            ; Shift pixel out of row
+    RRA                                 ; Shift pixel into new column (LSB=top)
+    ADD HL, DE                          ; Point to next row of tile
+    DJNZ .render_left_tile_rows         ; Repeat for all rows in the tile
 
-    OUT (LCD_D1), A                     ; Send column
+    OUT (LCD_D1), A                     ; Send new column out
     CALL i_lcd_wait
 
     POP HL                              ; Restore original pointer
     DEC C
-    JR NZ, .render_left_tile
- 
+    JR NZ, .render_left_tile_cols       ; Repeat for all cols in the tile
+
     POP BC
-    INC HL
-    DJNZ .render_row_left
+    INC HL                              ; Point to next tile in the row
+    DJNZ .render_left_tiles             ; Repeat for all tiles in this row
 
     LD B, FB_WIDTH_TILES / 2
-.render_row_right:
+.render_right_tiles:
     PUSH BC
-    LD C, FB_WIDTH_TILES / 2
-.render_right_tile:
-    PUSH HL                             ; Save pointer
+    LD C, PX_PER_TILE
+.render_right_tile_cols:
+    PUSH HL                             ; Save original pointer
     LD B, PX_PER_TILE
-.render_right_tile_row:
-    ; Rotate leftmost pixel from each row into a new column
-    RLC (HL)                            ; Rotate pixel from row
-    RRA                                 ; Rotate into new column
-    ADD HL, DE                          ; Point to next row
-    DJNZ .render_right_tile_row
+.render_right_tile_rows:
+    RLC (HL)                            ; Shift pixel out of row
+    RRA                                 ; Shift pixel into new column (LSB=top)
+    ADD HL, DE                          ; Point to next row of tile
+    DJNZ .render_right_tile_rows        ; Repeat for all rows in the tile
 
-    OUT (LCD_D2), A                     ; Send column
+    OUT (LCD_D2), A                     ; Send new column out
     CALL i_lcd_wait
 
     POP HL                              ; Restore original pointer
     DEC C
-    JR NZ, .render_right_tile
- 
-    POP BC
-    INC HL
-    DJNZ .render_row_right
+    JR NZ, .render_right_tile_cols      ; Repeat for all cols in the tile
 
     POP BC
-    LD DE, FB_WIDTH_TILES * PX_PER_TILE
+    INC HL                              ; Point to next tile in the row
+    DJNZ .render_right_tiles            ; Repeat for all tiles in this row
+
+    ; HL is currently at the start of the next row
+    LD DE, FB_WIDTH_TILES * 7           ; Skip forward to next tile start
     ADD HL, DE
-    DJNZ .render_rows
-
-    EI
+    DEC C
+    JR NZ, .render_rows
 
     POP HL
     POP DE
