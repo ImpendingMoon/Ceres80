@@ -119,49 +119,41 @@ _start:
     IM 1
     EI
 
-    ; Initialize LCD
-    CALL i_lcd_wait
-    LD A, %00111111                     ; Display On
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
- 
-    CALL i_lcd_wait
-    LD A, %01000000                     ; Set Y=0
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
-
-    CALL i_lcd_wait
-    LD A, %11000000                     ; Set Z=0
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
-
-    CALL i_lcd_wait
-    LD A, %10111000                     ; Set X=0
-    OUT (LCD_C1), A
-    OUT (LCD_C2), A
+    CALL i_init_lcd
 
     ; Initialize SD Card
     
-.draw_test:
-    LD HL, smail
+    ; Draw a test image one byte at a time
+    LD HL, test
     LD DE, framebuffer
     LD BC, 1024
-    LDIR
+;.draw_test:
+;    LDI
+;    CALL i_render
+;    DEC BC
+;    LD A, C
+;    OR B
+;    JR NZ, .draw_test
 
+.draw_test:
+    LDIR
     CALL i_render
 
-    .end:
-    ; Eventually this will load the shell program or wait for an SD Card
+.end:
     HALT
     JR .end
+
+
 
     INCLUDE "control.s"
     INCLUDE "display.s"
     INCLUDE "math.s"
     INCLUDE "call_table.s"
 
-smail:
-    INCBIN "smail.img"
+test:
+    INCBIN "TestPattern.img"
+
+
 
 ;*******************************************************************************
 ; RAM
@@ -169,7 +161,7 @@ smail:
     ORG $F800
 framebuffer:
 
-    ORG $F900
+    ORG framebuffer+1024
 bios_work_ram:
 
 system_ticks: DS 4
@@ -177,7 +169,7 @@ button_state: DS 1
 rng_state: DS 4
 rng_scratch: DS 4
 
-    ORG $FD00
+    ORG bios_work_ram+256
 stack_base:
 
     ORG $FFFF
