@@ -127,6 +127,7 @@ _start:
     LD HL, test
     LD DE, framebuffer
     LD BC, 1024
+    LDIR
 ;.draw_test:
 ;    LDI
 ;    CALL i_render
@@ -135,9 +136,11 @@ _start:
 ;    OR B
 ;    JR NZ, .draw_test
 
+    LD HL, 500
 .draw_test:
-    LDIR
     CALL i_render
+    CALL i_sleep
+    JR .draw_test
 
 .end:
     HALT
