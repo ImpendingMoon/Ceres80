@@ -92,41 +92,45 @@ i_render:
     PUSH DE
     PUSH HL
 
-    DI
     CALL i_lcd_wait
+    LD A, %11000000                     ; Set Z=0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    DI
     LD HL, framebuffer
     LD DE, FB_WIDTH_TILES * 7           ; Add to HL to skip 7 rows
     LD B, 8
 .render_rows:
+    CALL i_lcd_wait
     LD A, FB_HEIGHT_TILES               ; X = 8 - C (0, 1, ..., 7)
     SUB B
     OR %10111000                        ; LCD Command: Set X
     OUT (LCD_C1), A
     OUT (LCD_C2), A
-    CALL i_lcd_wait
 
     PUSH BC
     LD C, LCD_D1
     LD B, 8
+
+    CALL i_lcd_wait
+    LD A, %01000000                     ; Set Y=0
+    OUT (LCD_C1), A
 .render_left_tiles:
     CALL i_rotate_send_tile
     INC HL
     DJNZ .render_left_tiles
 
-    LD A, %01000000                     ; Set Y=0
-    OUT (LCD_C2), A
-    CALL i_lcd_wait
-
     LD C, LCD_D2
     LD B, 8
+
+    CALL i_lcd_wait
+    LD A, %01000000                     ; Set Y=0
+    OUT (LCD_C2), A
 .render_right_tiles:
     CALL i_rotate_send_tile
     INC HL
     DJNZ .render_right_tiles
-
-    LD A, %01000000                     ; Set Y=0
-    OUT (LCD_C1), A
-    CALL i_lcd_wait
 
     POP BC
     ADD HL, DE                          ; Skip forward to next tile row
@@ -157,7 +161,6 @@ i_rotate_send_tile:
     DJNZ .rotate_tile_rows
 
     OUT (C), A
-    CALL i_lcd_wait
 
     POP HL
     POP BC
