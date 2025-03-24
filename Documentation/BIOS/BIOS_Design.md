@@ -283,6 +283,12 @@ algorithm
     - HL: Quotient
     - DE: Remainder
     
+5. 0x44 - Random Integer
+- Generates a pseudo-random 16-bit integer between 0-65535
+- Parameters: None
+- Returns:
+    - HL: Random integer
+    
 ## Conversion
 
 1. 0x50 - ASCII to Integer
