@@ -28,12 +28,12 @@ i_lcd_wait:
 
 
 ;**
-; init_lcd: Initialize LCD
+; lcd_init: Initialize LCD
 ; Resets the LCD's X,Y,Z registers and turns the display on
 ; Parameters: None
 ; Returns: None
 ;**
-i_init_lcd:
+i_lcd_init:
     CALL i_lcd_wait
     LD A, %01000000                     ; Set Y=0
     OUT (LCD_C1), A

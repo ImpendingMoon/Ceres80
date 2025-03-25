@@ -119,29 +119,11 @@ _start:
     IM 1
     EI
 
-    CALL i_init_lcd
+    CALL i_lcd_init
 
     ; Initialize SD Card
-    
-    ; Draw a test image one byte at a time
-    LD HL, test
-    LD DE, framebuffer
-    LD BC, 1024
-    LDIR
-;.draw_test:
-;    LDI
-;    CALL i_render
-;    DEC BC
-;    LD A, C
-;    OR B
-;    JR NZ, .draw_test
 
-    LD HL, 500
-.draw_test:
-    CALL i_render
-    CALL i_sleep
-    JR .draw_test
-
+    CALL i_rand_init
 .end:
     HALT
     JR .end
@@ -149,12 +131,10 @@ _start:
 
 
     INCLUDE "control.s"
+    INCLUDE "input.s"
     INCLUDE "display.s"
     INCLUDE "math.s"
     INCLUDE "call_table.s"
-
-test:
-    INCBIN "TestPattern.img"
 
 
 
