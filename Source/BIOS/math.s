@@ -173,3 +173,158 @@ i_div16:
 
     POP BC
     RET
+
+
+;**
+; rand_init: Initialize RNG
+; Sets rng_state to a nonzero value based on system_ticks
+; Works best after system has been running for some time
+; Parameters: None
+; Returns: None
+;**
+i_rand_init:
+    PUSH BC
+    PUSH DE
+    PUSH HL
+
+    ; System ticks should not be zero (1 in 4 billion chance)
+.rand_init_time_entropy:
+    LD HL, system_ticks
+    LD DE, rng_state
+    LD BC, 4
+    LDIR
+
+    ; Read raw button state, want non-debounced state for entropy
+.rand_init_button_entropy:
+    LD HL, rng_state
+    IN A, (PIO_AD)
+    XOR (HL)
+    LD (HL), A
+    INC HL
+    IN A, (PIO_AD)
+    XOR (HL)
+    LD (HL), A
+    INC HL
+    IN A, (PIO_AD)
+    XOR (HL)
+    LD (HL), A
+    INC HL
+    IN A, (PIO_AD)
+    XOR (HL)
+    LD (HL), A
+
+    ; Make sure it still isn't zero
+.rand_init_check_zero:
+    LD HL, rng_state
+    LD A, (HL)
+    INC HL
+    OR (HL)
+    INC HL
+    OR (HL)
+    INC HL
+    OR (HL)
+    JR Z, .rand_init_time_entropy
+
+    POP HL
+    POP DE
+    POP BC
+    RET
+
+
+;**
+; rand: Random Integer
+; Generates a random integer between 0 and 65535 using xorshift
+; Parameters: None
+; Returns:
+; - HL: Random integer
+;**
+e_rand:
+    POP HL
+    POP DE
+i_rand:
+    PUSH BC
+    PUSH DE
+
+    DI
+    ; x ^= x << 13
+    CALL .rand_copy                     ; scratch = state
+    LD B, 13
+    CALL .rand_shift_left               ; scratch = scratch << 13
+    CALL .rand_xor                      ; state = state ^ scratch
+
+    ; x ^= x >> 17
+    CALL .rand_copy
+    LD B, 17
+    CALL .rand_shift_right
+    CALL .rand_xor
+
+    ; x ^= x << 5
+    CALL .rand_copy
+    LD B, 5
+    CALL .rand_shift_left
+    CALL .rand_xor
+
+    LD HL, rng_state+1                  ; Pull middle 16 bits from 32-bit state
+    LD E, (HL)
+    INC HL
+    LD D, (HL)
+    EX DE, HL                           ; Move to HL for return value
+
+    EI
+    POP DE
+    POP BC
+    RET
+
+; Copy current state to scratch
+.rand_copy:
+    LD HL, rng_state
+    LD DE, rng_scratch
+    LD B, 4
+.rand_copy_loop:
+    LD A, (HL)
+    LD (DE), A
+    INC HL
+    INC DE
+    DJNZ .rand_copy_loop
+    RET
+
+; Shift scratch to the left B times
+.rand_shift_left:
+    LD HL, rng_scratch
+    SLA (HL)
+    INC HL
+    RL (HL)
+    INC HL
+    RL (HL)
+    INC HL
+    RL (HL)
+    DJNZ .rand_shift_left
+    RET
+
+; Shift scratch to the right B times
+.rand_shift_right:
+    LD HL, rng_scratch + 3
+    SRL (HL)
+    DEC HL
+    RR (HL)
+    DEC HL
+    RR (HL)
+    DEC HL
+    RR (HL)
+    DJNZ .rand_shift_right
+    RET
+
+; XORs rng_sratch with rng_state, result in rng_state
+.rand_xor:
+    LD HL, rng_scratch
+    LD DE, rng_state
+    LD B, 4
+.rand_xor_loop:
+    LD A, (DE)
+    XOR (HL)
+    LD (DE), A
+    INC HL
+    INC DE
+    DJNZ .rand_xor_loop
+    RET
+

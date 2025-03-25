@@ -30,7 +30,7 @@ call_table:
     DW invalid_call
     DW invalid_call
     DW invalid_call
-    DW invalid_call
+    DW e_get_button_state
     DW invalid_call
     DW invalid_call
     DW invalid_call
@@ -66,7 +66,7 @@ call_table:
     DW e_div8
     DW e_mul16
     DW e_div16
-    DW invalid_call
+    DW e_rand
     DW invalid_call
     DW invalid_call
     DW invalid_call
