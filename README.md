@@ -1,7 +1,10 @@
 # Ceres80
 A homebrew computer built around the Z80 processor.
+
 Inspired by Ben Eater's 6502 computer with the goal of being a console-style computer.
+
 Schematics are currently not available *(as in I have not made them, which I should...)*
+
 Emulator coming soon!
 
 ## Hardware Specs
