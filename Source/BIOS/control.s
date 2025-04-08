@@ -37,9 +37,9 @@ e_get_system_ticks:
     POP HL
     POP DE
 i_get_system_ticks:
-    LD HL, (system_ticks+2)
-    EX DE, HL
     LD HL, (system_ticks)
+    EX DE, HL
+    LD HL, (system_ticks+2)
     RET
 
 
