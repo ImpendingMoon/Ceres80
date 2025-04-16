@@ -84,6 +84,9 @@ i_clear_screen:
     RET
 
 
+
+; NOTE: This cannot be optimized further for speed due to the LCD's rate limit.
+; NOTE: This should be optimized for size
 e_render:
     POP HL
     POP DE
@@ -98,41 +101,42 @@ i_render:
     OUT (LCD_C2), A
 
     DI
-    LD HL, framebuffer
-    LD DE, FB_WIDTH_TILES * 7           ; Add to HL to skip 7 rows
-    LD B, 8
+    LD HL, framebuffer                  ; HL is a pointer to the current tile
+    LD DE, FB_WIDTH_TILES * 7           ; Stride -1 row, adds at end of row
+    LD B, FB_HEIGHT_TILES
 .render_rows:
     CALL i_lcd_wait
-    LD A, FB_HEIGHT_TILES               ; X = 8 - C (0, 1, ..., 7)
+    LD A, FB_HEIGHT_TILES
     SUB B
-    OR %10111000                        ; LCD Command: Set X
+    OR %10111000                        ; Set X = 8 - C
     OUT (LCD_C1), A
     OUT (LCD_C2), A
 
-    PUSH BC
-    LD C, LCD_D1
-    LD B, 8
+    PUSH BC                             ; Render tiles stack frame
 
     CALL i_lcd_wait
-    LD A, %01000000                     ; Set Y=0
+    LD A, %01000000                     ; Set Y=0 (it gets clobbered)
     OUT (LCD_C1), A
+
+    LD C, LCD_D1                        ; Left LCD data port
+    LD B, FB_WIDTH_TILES / 2            ; Render half the row
 .render_left_tiles:
-    CALL i_rotate_send_tile
-    INC HL
+    CALL i_rotate_send_tile             ; Send current tile
+    INC HL                              ; Move to the next tile
     DJNZ .render_left_tiles
 
-    LD C, LCD_D2
-    LD B, 8
-
     CALL i_lcd_wait
-    LD A, %01000000                     ; Set Y=0
+    LD A, %01000000                     ; Set Y=0 (it gets clobbered)
     OUT (LCD_C2), A
+
+    LD C, LCD_D2                        ; Right LCD data port
+    LD B, FB_WIDTH_TILES / 2            ; Render the other half
 .render_right_tiles:
-    CALL i_rotate_send_tile
-    INC HL
+    CALL i_rotate_send_tile             ; Send current tile
+    INC HL                              ; Move to the next tile
     DJNZ .render_right_tiles
 
-    POP BC
+    POP BC                              ; End render tiles stack frame
     ADD HL, DE                          ; Skip forward to next tile row
     DJNZ .render_rows
     EI
@@ -148,22 +152,22 @@ i_rotate_send_tile:
     PUSH BC
     PUSH DE
     
-    LD DE, FB_WIDTH_TILES
-    LD B, 8
+    LD DE, FB_WIDTH_TILES               ; Stride
+    LD B, 8                             ; 8 rows per tile
 .rotate_tile_cols:
-    PUSH BC
+    PUSH BC                             ; Inner stack frame
     PUSH HL
-    LD B, 8
+    LD B, 8                             ; 8 bits/cols per pixel
 .rotate_tile_rows:
-    RLC (HL)
-    RRA
-    ADD HL, DE
-    DJNZ .rotate_tile_rows
+    RLC (HL)                            ; Rotate MSB out of row
+    RRA                                 ; Rotate into MSB of new col
+    ADD HL, DE                          ; Point to next row
+    DJNZ .rotate_tile_rows              ; Repeat until col is filled
 
-    OUT (C), A
+    OUT (C), A                          ; Send col
 
     POP HL
-    POP BC
+    POP BC                              ; End inner stack frame
     DJNZ .rotate_tile_cols
 
     POP DE
