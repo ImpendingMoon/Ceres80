@@ -10,6 +10,19 @@
 - Timer functions are called within the ISR and should exit using `EI` and `RETI`.
 - The IY register is reserved for use by the operating system.
 
+## Data Structs
+
+Sprites:
+```
+sprite_t {
+    char width,  // Width of the sprite in 8-pixel pages
+    char height, // Height of the sprite in pixels
+    char* pixels // Pointer to pixel data, 1bpp
+}
+```
+
+Strings: C-style null-terminated ASCII
+
 ## Errors:
 
 - 0: Success
@@ -20,6 +33,7 @@
 
 ## Calling Convention:
 
+- System calls are made by calling address `$0008`, such as with `RST 08h`
 - The call number is placed in A.
 - Parameters use registers in order left-to-right as defined. If part of a larger register is used, it is skipped.
 - Stack parameters are pushed by the caller in order left-to-right as defined.
