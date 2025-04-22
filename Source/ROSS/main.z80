@@ -1,0 +1,66 @@
+;******************************************************************************
+; main.z80
+; Contains the code for system startup, ISR, and syscall handler
+; Contains labels for reserved memory
+;******************************************************************************
+
+    INCLUDE "constants.z80"
+
+    ORG $0000
+JP main
+
+    DS $0008-$
+    ORG $0008
+call_handler:
+    RET
+
+    DS $0038-$
+    ORG $0038
+isr:
+    EI
+    RETI
+
+main:
+    ; Set stack top
+    LD SP, stack_top
+
+    ; Clear system memory
+    LD HL, system_memory
+    LD DE, system_memory+1
+    LD BC, $FFFF-system_memory-1
+    LD (HL), 0
+    LDIR
+
+    ; Init CTC
+    LD A, CTC_CMD
+    OUT (CTC_CH0), A
+    LD A, CTC_TC
+    OUT (CTC_CH0), A
+
+    ; Enable interrupts
+    IM 1
+    EI
+
+    HALT
+    JR main
+
+
+
+    ORG $8000
+program_memory:
+
+    ORG $F97F
+stack_top:
+
+    ORG $F980
+system_memory:
+
+system_uptime: DS 4
+rng_state: DS 2
+button_state: DS 1
+
+    ORG $FA00
+io_buffer:
+
+    ORG $FC00
+framebuffer:

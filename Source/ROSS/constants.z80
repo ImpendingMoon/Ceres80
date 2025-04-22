@@ -1,0 +1,23 @@
+;******************************************************************************
+; constants.z80
+; Contains labels for constants
+;******************************************************************************
+
+ROSS_MAJOR_VER: EQU 0
+ROSS_MINOR_VER: EQU 0
+
+CTC_CH0: EQU %0000                      ; Clock/Timer Channel 0 Port
+CTC_CH1: EQU %0001                      ; Clock/Timer Channel 1 Port
+CTC_CH2: EQU %0010                      ; Clock/Timer Channel 2 Port
+CTC_CH3: EQU %0011                      ; Clock/Timer Channel 3 Port
+PIO_AD: EQU %0100                       ; Parallel I/O Channel A Data
+PIO_BD: EQU %0101                       ; Parallel I/O Channel B Data
+PIO_AC: EQU %0110                       ; Parallel I/O Channel A Control
+PIO_BC: EQU %0111                       ; Parallel I/O Channel B Control
+LCD_C1: EQU %1000                       ; LCD Left Side Control
+LCD_D1: EQU %1001                       ; LCD Left Side Data
+LCD_C2: EQU %1010                       ; LCD Right Side Control
+LCD_D2: EQU %1011                       ; LCD Right Side Data
+
+CTC_TC: EQU 239                         ; Time Constant for 100 Hz
+CTC_CMD: EQU %10100111                  ; Interrupt, 256 prescaler, TC follows
