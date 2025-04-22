@@ -12,7 +12,30 @@ JP main
     DS $0008-$
     ORG $0008
 call_handler:
-    RET
+    PUSH DE
+    PUSH HL
+
+    ; Index into call table
+    ADD A                               ; Each entry is 2 bytes, double A
+    LD E, A                             ; Move to 16-bit register for adding
+    LD D, 0
+    LD HL, call_table
+    ADD HL, DE                          ; HL now points to function address
+
+    ; Load function address
+    LD E, (HL)                          ; Load function address into DE
+    INC HL
+    LD D, (HL)
+
+    LD IY, 0                            ; Move function address into IY
+    ADD IY, DE
+
+    ; Restore parameters and jump to function
+    POP HL
+    POP DE
+    JP (IY)
+
+
 
     DS $0038-$
     ORG $0038
