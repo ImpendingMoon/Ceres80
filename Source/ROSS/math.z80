@@ -1,0 +1,246 @@
+;**
+; mul8: Multiply 8-bit
+; Multiplies two unsigned 8-bit integers into an unsigned 16-bit integer
+; Sourced from https://map.grauw.nl/articles/mult_div_shifts.php
+;
+; Parameters:
+;   H: Multiplicand
+;   L: Multiplier
+; Returns:
+;   HL: Product
+;**
+mul8:
+    PUSH BC
+    PUSH DE
+
+    LD E, L
+    LD D, 0
+    LD L, D
+
+    LD B, 8
+.mul8_loop:
+    ADD HL, HL
+    JR NC, .mul8_skip
+    ADD HL, DE
+.mul8_skip:
+    DJNZ .mul8_loop
+
+    POP BC
+    POP DE
+    RET
+
+
+
+;**
+; div8: Divide 8-bit
+; Divides two unsigned 8-bit integers into two unsigned 8-bit integers
+; Does not check for divide by zero, returns garbage
+; Sourced from https://map.grauw.nl/articles/mult_div_shifts.php
+;
+; Parameters:
+;   H: Dividend
+;   L: Divisor
+; Returns:
+;   H: Quotient
+;   L: Remainder
+;**
+div8:
+    PUSH BC
+
+    XOR A
+
+    LD B, 8
+.div8_loop:
+    RL H
+    RLA
+    SUB L
+    JR NC, .div8_skip
+    ADD A, L
+.div8_skip:
+    DJNZ .div8_loop
+
+    LD L, A
+    LD A, H
+    RLA
+    CPL
+    LD H, A
+
+    POP BC
+    RET
+
+
+
+;**
+; mul16: Multiply 16-bit
+; Sourced from https://map.grauw.nl/articles/mult_div_shifts.php
+;
+; Parameters:
+;   HL: Multiplicand
+;   DE: Multiplier
+; Returns
+;   HLDE: Product
+;**
+mul16:
+    PUSH BC
+
+    LD A, L
+    LD C, H
+    LD HL, 0
+
+    LD B, 16
+.mul16_loop:
+    ADD HL, HL
+    RLA
+    RL C
+    JR NC, .mul16_skip
+    ADD HL, DE
+    ADC A, 0
+    JP NC, .mul16_skip
+    INC C
+.mul16_skip:
+    DJNZ .mul16_loop
+    
+    LD E, C
+    LD D, A
+    EX DE, HL
+    POP BC
+    RET
+
+
+
+;**
+; div16: Divide 16-bit
+; Divides two unsigned 16-bit integers into two unsigned 16-bit integers
+; Does not check for Divide By Zero, returns garbage
+; Sourced from https://map.grauw.nl/articles/mult_div_shifts.php
+;
+; Parameters:
+;   HL: Dividend
+;   DE: Divisor
+; Returns:
+;   HL: Quotient
+;   DE: Remainder
+;**
+div16:
+    PUSH BC
+
+    LD A, H
+    LD C, L
+    LD HL, 0
+
+    LD B, 8
+.div16_loop1:
+    RLA
+    ADC HL,HL
+    SBC HL,DE
+    JR NC, .div16_skip1
+    ADD HL, DE
+.div16_skip1:
+    DJNZ .div16_loop1
+
+    RLA
+    CPL
+    LD B, A
+    LD A, C
+    LD C, B
+
+    LD B, 8
+.div16_loop2:
+    RLA
+    ADC HL, HL
+    SBC HL, DE
+    JR NC, .div16_skip2
+    ADD HL, DE
+.div16_skip2:
+    DJNZ .div16_loop2
+    RLA
+    CPL
+    EX DE, HL
+    LD H, C
+    LD L, A
+
+    POP BC
+    RET
+
+
+
+;**
+; rand_init: Initialize RNG
+; Sets rng_state to a nonzero value
+;
+; Parameters: None
+; Returns: None
+;**
+rand_init:
+    PUSH HL
+    PUSH BC
+
+.rand_init_loop:
+    ; Use the refresh register to get different 7-bit numbers
+    LD B, 4
+.rand_init_loop_1:
+    LD A, R
+    LD HL, rng_state
+    LD (HL), A
+    INC HL
+    DJNZ .rand_init_loop_1
+
+
+    ; XOR the refresh register shifted left to cover 8th bit
+    LD B, 4
+.rand_init_loop_2:
+    DEC HL
+    LD A, R
+    RLA
+    XOR (HL)
+    LD (HL), A
+    DJNZ .rand_init_loop_2
+
+    ; Check that it isn't still zero
+    LD A, (HL)
+    INC HL
+    OR (HL)
+    INC HL
+    OR (HL)
+    INC HL
+    OR (HL)
+    JR Z, .rand_init_loop               ; If it is, retry
+
+    POP BC
+    POP HL
+    RET
+
+
+
+;**
+; rand: Random Integer
+; Generates a random integer between 0 and 65535
+; Sourced from https://wikiti.brandonw.net/index.php?title=Z80_Routines:Math:Random
+;
+; Parameters: None
+; Returns:
+;   HL: Random integer
+;**
+rand:
+    PUSH BC
+
+    LD HL, (rng_state)
+    LD B, H
+    LD C, L
+    ADD HL, HL
+    ADD HL, HL
+    INC L
+    ADD HL, BC
+    LD (rng_state), HL
+
+    LD HL, (rng_state+2)
+    ADD HL, HL
+    SBC A
+    AND %00101101
+    XOR L
+    LD L, A
+    LD (rng_state+2), HL
+    ADD HL, BC
+
+    POP BC
+    RET

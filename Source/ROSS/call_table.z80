@@ -14,11 +14,11 @@ call_table:
     DW invalid_call
     DW invalid_call
     DW invalid_call
-    DW invalid_call
-    DW invalid_call
-    DW invalid_call
-    DW invalid_call
-    DW invalid_call
+    DW mul8
+    DW div8
+    DW mul16
+    DW div16
+    DW rand
     DW invalid_call
     DW invalid_call
     DW invalid_call

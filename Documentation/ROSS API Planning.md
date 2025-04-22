@@ -87,20 +87,20 @@
     - Divides two unsigned 16-bit integers
     - Returns quotient and remainder
 
-`$14` error_t atoi(char* str)
+`$14` int rand()
+    - Returns a random 16-bit integer
+
+`$15` error_t atoi(char* str)
     - ASCII to 16-bit integer
 
-`$15` error_t itoa(int a, char* str)
+`$16` error_t itoa(int a, char* str)
     - 16-bit integer to ASCII
 
-`$16` error_t htoa(char* str)
+`$17` error_t htoa(char* str)
     - Hexadecimal ASCII to 16-bit integer
 
-`$17` error_t atoh(int a, char* str)
+`$18` error_t atoh(int a, char* str)
     - 16-bit integer to Hexadecimal ASCII
-
-`$18` int rand()
-    - Returns a random 16-bit integer
 
 ## Storage
 

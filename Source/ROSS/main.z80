@@ -69,6 +69,10 @@ main:
 
 
 
+    INCLUDE "math.s"
+
+
+
     ORG $8000
 program_memory:
 
@@ -79,7 +83,7 @@ stack_top:
 system_memory:
 
 system_uptime: DS 4
-rng_state: DS 2
+rng_state: DS 4
 button_state: DS 1
 
     ORG $FA00
