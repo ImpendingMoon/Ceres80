@@ -1,14 +1,25 @@
 # Ceres80 Rom Operating SyStem (ROSS) API Planning
 
 ## Notes
-- The system timer runs at 100 Hz, and one tick is 10ms.
-- The system supports up to four coroutines and two timers.
-- The program entry point is always registered in coroutine slot 0.
-- Coroutines do not support looped yields (B yields to C yeilds to B) as only one return slot is stored per slot.
-- The filesystem used is USTAR without directory or link support.
-- Timers may trigger in coroutines.
-- Timer functions are called within the ISR and should exit using `EI` and `RETI`.
-- The IY register is reserved for use by the operating system.
+
+### Timing & Scheduling
+- **System Tick**: The system timer operates at 100 Hz, resulting in a tick period of 10 milliseconds. This tick is used in all time-based operations.
+
+### Coroutines and Timers
+- **Coroutine Support**: ROSS supports up to four concurrent coroutines.
+- **Timer Support**: ROSS supports up to two concurrent timers.
+- **Entry Point**: The initial program entry point is automatically registered within coroutine slot 0.
+- **Coroutine Restrictions**: ROSS does not support chained yielding (i.e., Coroutine A yields to B, which yields back to A). This limitation is due to only one return value being stored per coroutine slot.
+- **Timer Context**: Timers continue counting and may trigger during execution of coroutines.
+- **Timer Exit Convention**: Timer callbacks execute inside of the interrupt service routine context, and should exit using the `EI` and `RETI` instructions.
+
+### Resource Restrictions
+- **IY Register**: The IY register is reserved for use by the operating system and should not be accessed by application code.
+- **Peripheral Devices**: Peripheral devices should only be accessed through the relevant system calls.
+
+### Storage
+- **Filesystem**: ROSS uses a USTAR filesystem written as the only partition on the SD Card
+- **Filesystem Limitations**: ROSS impliments a limited, read-only USTAR driver. This driver does not support directory structures, symbolic links, or hard links.
 
 ## Data Structs
 
