@@ -2,7 +2,11 @@
 
 ## Memory
 `$0000`-`$7FFF`: Firmware ROM
-`$8000`-`$FFFF`: Program RAM
+`$8000`-`$F7FF`: Program RAM
+`$F800`-`$F97F`: Initial Stack
+`$F980`-`$F9FF`: Firmware memory
+`$FA00`-`$FBFF`: I/O Buffer
+`$FC00`-`$FFFF`: Framebuffer
 
 ## Ports
 
