@@ -1,3 +1,8 @@
+;******************************************************************************
+; math.z80
+; Contains routines for many common math operations
+;******************************************************************************
+
 ;**
 ; mul8: Multiply 8-bit
 ; Multiplies two unsigned 8-bit integers into an unsigned 16-bit integer
