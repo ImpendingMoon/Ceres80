@@ -73,7 +73,7 @@ Strings: C-style null-terminated ASCII
 `$03` long get_uptime()
     - Gets the amount of ticks the system has been running
 
-`$04` error_t register_timer(byte slot, void* func, int interval)
+`$04` error_t register_timer(byte slot, void\* func, int interval)
     - Registers a timer that will run after an amount of ticks
 
 `$05` error_t pause_timer(byte slot)
@@ -82,7 +82,7 @@ Strings: C-style null-terminated ASCII
 `$06` error_t remove_timer(byte slot)
     - Removes the registered timer
 
-`$07` error_t register_coroutine(byte slot, void* func, void* stack_pointer)
+`$07` error_t register_coroutine(byte slot, void\* func, void\* stack_pointer)
     - Registers a coroutine
 
 `$08` error_t remove_coroutine(byte slot)
@@ -115,16 +115,16 @@ Strings: C-style null-terminated ASCII
 `$14` int rand()
     - Returns a random 16-bit integer
 
-`$15` error_t atoi(char* str)
+`$15` error_t atoi(char\* str)
     - ASCII to 16-bit integer
 
-`$16` error_t itoa(int a, char* str)
+`$16` error_t itoa(int a, char\* str)
     - 16-bit integer to ASCII
 
-`$17` error_t htoa(char* str)
+`$17` error_t htoa(char\* str)
     - Hexadecimal ASCII to 16-bit integer
 
-`$18` error_t atoh(int a, char* str)
+`$18` error_t atoh(int a, char\* str)
     - 16-bit integer to Hexadecimal ASCII
 
 ## Storage
@@ -132,45 +132,45 @@ Strings: C-style null-terminated ASCII
 `$20` error_t sd_init()
     - Initializes the SD Card
 
-`$21` error_t sd_read_sector(long address, void* buf)
+`$21` error_t sd_read_sector(long address, void\* buf)
     - Reads a 512 byte sector from the SD Card
 
-`$22` error_t sd_write_sector(long address, void* buf)
+`$22` error_t sd_write_sector(long address, void\* buf)
     - Writes a 512 byte sector to the SD Card
 
 ## Filesystem
 
-`$23` error_t fs_list_start_sectors(long* buf, byte limit, byte offset)
+`$23` error_t fs_list_start_sectors(long\* buf, byte limit, byte offset)
     - Returns an array of file start sectors, max 128 entries/512 bytes.
 
-`$24` error_t fs_get_file_struct(long sector, void* buf)
+`$24` error_t fs_get_file_struct(long sector, void\* buf)
     - Loads a file's 512-byte USTAR header
 
-`$25` error_t fs_get_filename(long sector, void* buf)
+`$25` error_t fs_get_filename(long sector, void\* buf)
     - Loads a file's filename, up to 100 characters
 
-`$26` error_t fs_load_file_clusters(long sector, void* buf)
+`$26` error_t fs_load_file_clusters(long sector, void\* buf)
     - Loads a number of file clusters into memory 
-
-## Display
-
-`$30` error_t draw_sprite(byte x, byte y, sprite_t* sprite)
-    - Draws a bitmap sprite using XOR
-
-`$31` error_t draw_char(byte x, byte y, char c)
-    - Draws a character
-
-`$32` error_t draw_string(byte x, byte y, char* str)
-    - Draws a string of characters
-
-`$33` void draw_clear()
-    - Clears the screen
-
-`$34` void flush_lcd()
-    - Copies the framebuffer to the LCD
 
 ## Input
 
-`$35` (byte, byte) read_buttons()
+`$30` (byte, byte) read_buttons()
     - Reads the current button state with debouncing
     - First byte is buttons down bitmask, second byte is buttons changed
+
+## Display
+
+`$31` void fb_clear()
+    - Clears the framebuffer
+
+`$32` void fb_flush()
+    - Copies the framebuffer to the LCD
+
+`$33` error_t draw_sprite(byte x, byte y, sprite_t\* sprite)
+    - Draws a bitmap sprite using XOR
+
+`$34` error_t draw_char(byte x, byte y, char c)
+    - Draws a character
+
+`$35` error_t draw_string(byte x, byte y, char\* str)
+    - Draws a string of characters
