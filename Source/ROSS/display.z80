@@ -1,0 +1,187 @@
+;******************************************************************************
+; display.z80
+; Contains routines for manipulating the framebuffer and LCD
+;******************************************************************************
+
+;**
+; lcd_wait: Wait for LCD
+; Waits for both sides of the LCD to be ready
+;
+; Parameters: None
+; Returns: None
+;**
+lcd_wait:
+    PUSH BC
+    LD C, %1001000                      ; Mask BUSY and RST bits
+.lcd_wait_loop:
+    LD B, 17
+    DJNZ $
+
+    IN A, (LCD_C1)
+    AND C
+    JR NZ, .lcd_wait_loop
+    IN A, (LCD_C2)
+    AND C
+    JR NZ, .lcd_wait_loop
+    
+    POP BC
+    RET
+
+
+
+;**
+; lcd_init: Initialize LCD
+; Zeroes the LCD registers and turns on the display
+;
+; Parameters: None
+; Returns: None
+;**
+lcd_init:
+    CALL lcd_wait
+    LD A, LCD_CMD_SETX | 0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL lcd_wait
+    LD A, LCD_CMD_SETY | 0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL lcd_wait
+    LD A, LCD_CMD_SETZ | 0
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    CALL lcd_wait
+    LD A, LCD_CMD_ON
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
+    RET
+
+
+
+;**
+; fb_clear: Framebuffer clear
+; Zeroes the framebuffer
+;
+; Parameters: None
+; Returns: None
+;**
+fb_clear:
+    PUSH BC
+    PUSH DE
+    PUSH HL
+
+    LD HL, framebuffer
+    LD DE, framebuffer + 1
+    LD (HL), 0
+    LD BC, $FFFF - framebuffer - 1
+    LDIR
+
+    POP HL
+    POP DE
+    POP BC
+    RET
+    
+
+
+;**
+; fb_flush: Flush to LCD
+; Writes the contents of the framebuffer to the LCD
+;
+; Parameters: None
+; Returns: None
+;**
+fb_flush:
+    PUSH BC
+    PUSH DE
+    PUSH HL
+    
+    LD HL, framebuffer                  ; Current tile pointer
+    LD DE, FB_WIDTH_TILES * 7           ; Stride-1 (b/c HL ends at second row)
+    LD B, FB_HEIGHT_TILES               ; Row counter
+    
+    DI                                  ; Framebuffer is altered in memory
+    
+.flush_rows:
+    ; Set row with X = 8 - C (count B down for DJNZ, count up for LCD X)
+    CALL lcd_wait
+    LD A, FB_HEIGHT_TILES
+    SUB B
+    OR LCD_CMD_SETX
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+    
+    PUSH BC                             ; Start stack frame: flush_tiles
+.flush_tiles:
+    CALL lcd_wait
+    LD A, LCD_CMD_SETY | 0              ; Reset clobbered left Y register
+    OUT (LCD_C1), A
+    
+    LD C, LCD_D1                        ; Left LCD data port
+    LD B, FB_WIDTH_TILES / 2            ; Flush left half of the row
+.flush_left_side:
+    CALL rotate_out_tile                ; Send the current tile
+    INC HL                              ; Point to the next tile
+    DJNZ .flush_left_side
+    
+    CALL lcd_wait
+    LD A, LCD_CMD_SETY | 0              ; Reset clobbered right Y register
+    OUT (LCD_C1), A
+    
+    LD C, LCD_D2                        ; Right LCD data port
+    LD B, FB_WIDTH_TILES / 2            ; Flush right half of the row
+.flush_right_side:
+    CALL rotate_out_tile                ; Send the current tile
+    INC HL                              ; Point to the next tile
+    DJNZ .flush_left_side
+    
+    POP BC                              ; End stack frame: flush_tiles
+    ADD HL, DE                          ; Point to next row of tiles
+    DJNZ .flush_rows
+    
+    EI
+    
+    POP HL
+    POP DE
+    POP BC
+    RET
+    
+
+
+;**
+; rotate_out_tile: Rotate and Output Tile
+; Rotates a tile from framebuffer orientation to LCD orientation,
+; then sends it to the LCD
+;
+; Parameters:
+; - HL: Pointer to tile to send
+; - C: Port to write to
+; Returns: None
+;**
+rotate_out_tile:
+    PUSH BC
+    PUSH DE
+    
+    LD DE, FB_WIDTH_TILES               ; Stride
+    LD B, PX_PER_TILE
+.rotate_tile_cols:
+    PUSH BC                             ; Start stack frame: rotate_tile_rows
+    PUSH HL
+    LD B, PX_PER_TILE
+.rotate_tile_rows:
+    RLC (HL)                            ; Rotate MSB pixel out of row
+    RRA                                 ; Rotate into MSB of new column
+    ADD HL, DE                          ; Point to next row
+    DJNZ .rotate_tile_rows              ; Repeat until new column is filled
+    
+    OUT (C), A                          ; Send column to LCD
+    
+    POP HL
+    POP BC                              ; End stack frame: rotate_tile_rows
+    DJNZ .rotate_tile_cols
+    
+    POP DE
+    POP BC
+    RET

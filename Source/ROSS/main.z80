@@ -7,7 +7,7 @@
     INCLUDE "constants.z80"
 
     ORG $0000
-JP main
+    JP main
 
     DS $0008-$
     ORG $0008
@@ -70,6 +70,7 @@ main:
     
     
     INCLUDE "math.z80"
+    INCLUDE "display.z80"
     INCLUDE "call_table.z80"
 
 
