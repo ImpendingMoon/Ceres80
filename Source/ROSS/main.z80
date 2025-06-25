@@ -16,11 +16,11 @@ call_handler:
     PUSH HL
 
     ; Index into call table
-    ADD A                               ; Each entry is 2 bytes, double A
-    LD E, A                             ; Move to 16-bit register for adding
+    ADD A                               ; Each entry is 2 bytes, double index
+    LD E, A                             ; Move to DE to add to base address
     LD D, 0
     LD HL, call_table
-    ADD HL, DE                          ; HL now points to function address
+    ADD HL, DE                          ; HL points to function address
 
     ; Load function address
     LD E, (HL)                          ; Load function address into DE
@@ -40,6 +40,23 @@ call_handler:
     DS $0038-$
     ORG $0038
 isr:
+    ; Increment system uptime (32-bit counter)
+    PUSH HL
+
+    LD HL, system_uptime
+    INC (HL)
+    JR NZ, .isr_end
+    INC HL
+    INC (HL)
+    JR NZ, .isr_end
+    INC HL
+    INC (HL)
+    JR NZ, .isr_end
+    INC HL
+    INC (HL)
+
+.isr_end
+    POP HL
     EI
     RETI
 
