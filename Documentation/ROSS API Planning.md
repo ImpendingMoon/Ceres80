@@ -38,9 +38,14 @@ Strings: C-style null-terminated ASCII
 
 - 0: Success
 - 1: General Failure
-- 2: Out of Bounds
-- 3: Already Exists
-- 4: Does not Exist
+- 2: Invalid argument
+- 3: Resource not found
+- 4: Resource already exists
+- 5: Out of bounds access
+- 6: I/O error
+- 7: Operation timed out
+- 8: Division by zero
+- 255: Unsupported operation
 
 ## Calling Convention:
 
