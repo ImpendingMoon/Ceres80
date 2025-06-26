@@ -129,4 +129,5 @@ call_table:
     DW invalid_call
 
 invalid_call:
+    LD A, ERR_UNSUPPORTED
     RET

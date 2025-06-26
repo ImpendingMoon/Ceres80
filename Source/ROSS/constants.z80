@@ -30,3 +30,14 @@ LCD_CMD_ON: EQU %00111111
 FB_WIDTH_TILES: EQU 16
 FB_HEIGHT_TILES: EQU 8
 PX_PER_TILE: EQU 8
+
+ERR_SUCCESS: EQU 0                      ; Success
+ERR_FAILURE: EQU 1                      ; General failure
+ERR_INVALID_ARG: EQU 2                  ; Invalid argument
+ERR_NOT_FOUND: EQU 3                    ; Resource not found
+ERR_EXISTS: EQU 4                       ; Resource already exists
+ERR_OUT_OF_BOUNDS: EQU 5                ; Out of bounds access
+ERR_IO: EQU 6                           ; I/O error
+ERR_TIMEOUT: EQU 7                      ; Operation timed out
+ERR_DIV_ZERO: EQU 8                     ; Division by zero
+ERR_UNSUPPORTED: EQU 255                ; Unsupported operation
