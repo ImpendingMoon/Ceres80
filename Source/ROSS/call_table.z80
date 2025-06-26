@@ -1,8 +1,8 @@
 call_table:
-    DW invalid_call
-    DW invalid_call
-    DW invalid_call
-    DW invalid_call
+    DW exit
+    DW get_firmware_version
+    DW sleep
+    DW get_uptime
     DW invalid_call
     DW invalid_call
     DW invalid_call

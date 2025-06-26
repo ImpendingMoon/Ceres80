@@ -1,0 +1,79 @@
+;******************************************************************************
+; control.z80
+; Contains routines for programs to control the system
+;******************************************************************************
+
+;**
+; exit: Exit the program
+; Exits the program and returns to the monitor. Equivalent to RST $00.
+;
+; Parameters: None
+; Returns: N/A
+;**
+exit:
+    RST $00
+
+
+
+;**
+; get_firmware_version: Get firmware version
+; Returns the ROSS firmware version
+;
+; Parameters: None
+; Returns:
+;   HL: Firmware version (major in H, minor in L)
+get_firmware_version:
+    LD H, ROSS_MAJOR_VER
+    LD L, ROSS_MINOR_VER
+    RET
+
+
+
+;**
+; sleep: Sleep for a specified number of ticks
+; Sleeps the system for at least the specified number of ticks
+;
+; Parameters:
+;   HL: Number of ticks to sleep
+; Returns: None
+;**
+sleep:
+    PUSH HL
+
+.sleep_loop:
+    HALT                                ; Halt first for minimum delay
+    DEC HL
+    LD A, H
+    OR L
+    JR NZ, .sleep_loop                  ; Loop until HL is zero
+
+    POP HL
+    RET
+
+
+
+;**
+; get_uptime: Get system uptime in ticks
+; Returns the number of ticks since last reset or program exit
+;
+; Parameters: None
+; Returns:
+;   HLDE: System uptime in ticks
+;**
+get_uptime:
+    PUSH BC
+
+    LD HL, system_uptime
+    LD E, (HL)
+    INC HL
+    LD D, (HL)
+    INC HL
+    LD C, (HL)                          ; Don't clobber HL
+    INC HL
+    LD B, (HL)
+
+    LD L, C                             ; Load uptime into HLDE
+    LD H, B
+
+    POP BC
+    RET

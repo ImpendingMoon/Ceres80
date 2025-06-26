@@ -85,10 +85,11 @@ main:
     JR main
     
     
-    
+    INCLUDE "control.z80"
     INCLUDE "math.z80"
     INCLUDE "display.z80"
     INCLUDE "call_table.z80"
+
 
 
     ORG $8000
