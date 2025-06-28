@@ -23,6 +23,7 @@ read_buttons:
     LD C, A
     DJNZ .read_buttons_loop
 
+    XOR $FF                             ; Invert bits (active low to active high)
     EX AF, AF'
     LD A, (button_state)                ; Get previous state
     XOR C                               ; Get changed buttons
