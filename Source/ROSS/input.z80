@@ -1,0 +1,36 @@
+;******************************************************************************
+; input.z80
+; Contains routines for reading user input
+;******************************************************************************
+
+;**
+; read_buttons: Read buttons
+; Reads the buttons with debouncing, returns the state and edge detection
+;
+; Parameters: None
+; Returns:
+;   A: Button state
+;   L: Buttons changed since last read
+;**
+read_buttons:
+    PUSH BC
+
+    LD C, 0                             ; Persistent state for debounce
+    LD B, 8                             ; Read 8 times for debounce
+.read_buttons_loop:
+    IN A, (PIO_AD)                      ; Read buttons (active low)
+    OR C                                ; Software debounce (prefer button up)
+    LD C, A
+    DJNZ .read_buttons_loop
+
+    EX AF, AF'
+    LD A, (button_state)                ; Get previous state
+    XOR C                               ; Get changed buttons
+    LD L, A                             ; Store changed buttons in L
+    EX AF, AF'                          ; Restore current button state
+    LD (button_state), A                ; Save current state
+
+    ; Current state is in A, changed state in L
+
+    POP BC
+    RET

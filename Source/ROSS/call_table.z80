@@ -46,7 +46,7 @@ call_table:
     DW invalid_call
     DW invalid_call
     DW invalid_call
-    DW invalid_call
+    DW read_buttons
     DW fb_clear
     DW fb_flush
     DW invalid_call
