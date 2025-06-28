@@ -98,6 +98,11 @@ fb_flush:
     PUSH DE
     PUSH HL
     
+    CALL lcd_wait
+    LD A, LCD_CMD_SETZ | 0              ; Reset clobbered Z register
+    OUT (LCD_C1), A
+    OUT (LCD_C2), A
+
     LD HL, framebuffer                  ; Current tile pointer
     LD DE, FB_WIDTH_TILES * 7           ; Stride-1 (b/c HL ends at second row)
     LD B, FB_HEIGHT_TILES               ; Row counter
