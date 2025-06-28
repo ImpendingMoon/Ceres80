@@ -9,7 +9,7 @@
     ORG $0000
     JP main
 
-    DS $0008-$
+    DS $0008-$, $C7
     ORG $0008
 call_handler:
     PUSH DE
@@ -37,7 +37,7 @@ call_handler:
 
 
 
-    DS $0038-$
+    DS $0038-$, $C7
     ORG $0038
 isr:
     ; Increment system uptime (32-bit counter)
@@ -81,8 +81,9 @@ main:
     IM 1
     EI
 
+.end:
     HALT
-    JR main
+    JR .end
     
     
     INCLUDE "control.z80"
