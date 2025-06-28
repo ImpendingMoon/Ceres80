@@ -128,14 +128,14 @@ fb_flush:
     
     CALL lcd_wait
     LD A, LCD_CMD_SETY | 0              ; Reset clobbered right Y register
-    OUT (LCD_C1), A
+    OUT (LCD_C2), A
     
     LD C, LCD_D2                        ; Right LCD data port
     LD B, FB_WIDTH_TILES / 2            ; Flush right half of the row
 .flush_right_side:
     CALL rotate_out_tile                ; Send the current tile
     INC HL                              ; Point to the next tile
-    DJNZ .flush_left_side
+    DJNZ .flush_right_side
     
     POP BC                              ; End stack frame: flush_tiles
     ADD HL, DE                          ; Point to next row of tiles
