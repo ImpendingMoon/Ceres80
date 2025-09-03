@@ -1,0 +1,32 @@
+[
+ {
+  "directory": "/home/leif/Development/Ceres80/Source/ROSS",
+  "arguments": [
+   "sdcc",
+   "-mz80",
+   "-c",
+   "--reserve-regs-iy",
+   "--opt-code-speed",
+   "--std-sdcc99",
+   "src/main.c",
+   "-o",
+   "build/obj/main.c.rel"
+  ],
+  "file": "src/main.c"
+ },
+ {
+  "directory": "/home/leif/Development/Ceres80/Source/ROSS",
+  "arguments": [
+   "sdcc",
+   "-mz80",
+   "-c",
+   "--reserve-regs-iy",
+   "--opt-code-speed",
+   "--std-sdcc99",
+   "src/system.c",
+   "-o",
+   "build/obj/system.c.rel"
+  ],
+  "file": "src/system.c"
+ }
+]
