@@ -1,6 +1,6 @@
 compilers:
-  - description: SDCC for Z80
-    match-compiler-exe: "(.*/)?sdcc(.exe)?"
+  - description: SDCC for Z80 on Linux
+    match-compiler-exe: "/usr/bin/sdcc"
     match-args: -mz80
     match-language: C
     include-dirs:
@@ -53,7 +53,10 @@ compilers:
 #define __STDC_NO_COMPLEX__ 1
 
 #define __interrupt
+#define __naked
+#define __asm__(x)
 #define __code
 #define __sfr
 #define _at
+#define __sdcccall
 "
