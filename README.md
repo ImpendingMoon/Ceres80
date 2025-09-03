@@ -16,7 +16,7 @@ Emulator coming soon!
 - 128x64 LCD (NT7108T controller)
 
 ## Software Requirements
-- z80asm v1.8
+- SDCC 4.4.0+
 - Python 3.10+ (for helper scripts)
 - PlatformIO (for Arduino helper tools)
 
