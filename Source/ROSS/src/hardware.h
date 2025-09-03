@@ -2,7 +2,7 @@
  * @file hardware.h
  * @brief Hardware definitions, special function registers, and functions
  *
- * @license BSD-3-Clause
+ * @license GPL-3.0-or-later
  */
 
 #ifndef ROSS_HARDWARE_H

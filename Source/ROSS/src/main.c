@@ -2,7 +2,7 @@
  * @file main.c
  * @brief The main entrypoint for ROSS
  *
- * @license BSD-3-Clause
+ * @license GPL-3.0-or-later
  */
 
 #include "hardware.h"

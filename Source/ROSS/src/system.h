@@ -2,7 +2,7 @@
  * @file system.h
  * @brief Functions and variables relating to the System set of System Calls
  * Internal header, not for application use
- * @license BSD-3-Clause
+ * @license GPL-3.0-or-later
  */
 
 #ifndef ROSS_SYSTEM_H

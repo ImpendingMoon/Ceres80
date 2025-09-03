@@ -1,7 +1,8 @@
 ;******************************************************************************
 ; @file call_table.s
 ; @brief System call table and invalid call function definition
-; @license BSD-3-Clause
+;
+; @license GPL-3.0-or-later
 ;******************************************************************************
 
 .globl call_table
