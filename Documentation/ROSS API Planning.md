@@ -60,30 +60,32 @@ C-style NULL-terminated ASCII.
 
 ## System Calls
 
+### System
+
 - `0x00`: `void exit(void)`
     - Exits the program.
 
 - `0x00`: `int get_version(void)`
     - Returns the current ROSS version.
     
-- `0x02`: `void sleep(int ticks [HL])`
+- `0x02`: `void sleep(unsigned int ticks)`
     - Pauses execution for at least an amount of ticks.
     
-- `0x03`: `long get_system_ticks(void)`
+- `0x03`: `unsigned long get_uptime(void)`
     - Returns then number of ticks the system has been running.
     
-## Math and Conversion
+### Math and Conversion
 
 - `0x10`: `int rand(void)`
     - Returns a random 16-bit integer.
     
-## User I/O
+### User I/O
 
 - `0x20`: `ButtonState read_buttons(void)`
     - Reads the current button state with debouncing.
 
 - `0x21`: `void wait_for_buttons(char bitmask)`
-    - Waits for any button set to 1 in the bitmask to be pressed
+    - Waits for any button set to 1 in the bitmask to be pressed.
     
 - `0x21`: `void fb_clear(void)`
     - Clears the framebuffer.
@@ -91,7 +93,7 @@ C-style NULL-terminated ASCII.
 - `0x22`: `void fb_flush(void)`
     - Copies the framebuffer to the LCD.
     
-- `0x23`: `void draw_bitmap(Point point, Sprite* sprite)`
+- `0x23`: `void draw_bitmap(Point point, Bitmap* bitmap)`
     - Draws a bitmap using XOR.
     - X coordinates and bitmap widths are in bytes (8 pixel) steps. For fine-grained X coordinates, use `draw_sprite`.
     
