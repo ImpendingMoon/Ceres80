@@ -9,7 +9,7 @@
 #define ROSS_SYSTEM_H
 
 extern const int ross_version;
-extern unsigned long uptime;
+extern unsigned long system_uptime;
 
 void ctc_init(void);
 

@@ -8,8 +8,6 @@
 #include "hardware.h"
 #include "system.h"
 
-volatile unsigned long system_uptime = 0;
-
 
 
 int main(void)

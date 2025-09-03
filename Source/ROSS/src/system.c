@@ -10,7 +10,7 @@
 #include "hardware.h"
 
 const int ross_version = 0;
-unsigned long uptime = 0;
+unsigned long system_uptime = 0;
 
 void ctc_init(void)
 {
@@ -53,5 +53,5 @@ void sleep(unsigned int ticks) __sdcccall(0)
 
 unsigned long get_uptime(void) __sdcccall(0)
 {
-	return uptime;
+	return system_uptime;
 }
