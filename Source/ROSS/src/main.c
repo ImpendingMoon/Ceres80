@@ -8,8 +8,6 @@
 #include "hardware.h"
 #include "system.h"
 
-
-
 int main(void)
 {
 	ctc_init();

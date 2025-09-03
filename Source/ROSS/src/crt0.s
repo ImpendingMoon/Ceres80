@@ -27,7 +27,22 @@
 
     ; System Call Dispatcher
     .org 0x0008
-    ret
+
+    ; Index into call table (16-bit entries)
+    add a, a
+    ld e, a
+    ld d, #0
+    ld hl, #call_table
+    add hl, de
+
+    ; Load function address
+    ld e, (hl)
+    inc hl
+    ld d, (hl)
+
+    ; Jump to function
+    ex de, hl
+    jp (hl)
 
 
 
