@@ -8,8 +8,10 @@
 #ifndef ROSS_SYSTEM_H
 #define ROSS_SYSTEM_H
 
-extern const int ross_version;
-extern unsigned long system_uptime;
+#include "typedefs.h"
+
+extern const int16 ross_version;
+extern uint32 system_uptime;
 
 void ctc_init(void);
 

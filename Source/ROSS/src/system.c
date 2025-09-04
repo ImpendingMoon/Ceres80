@@ -6,17 +6,16 @@
  */
 
 #include "system.h"
-#include <stdint.h>
 #include "hardware.h"
 
-const int ross_version = 0;
-unsigned long system_uptime = 0;
+const int16 ross_version = 0;
+uint32 system_uptime = 0;
 
 void ctc_init(void)
 {
 	// Enable interrupts, prescaler = 256, time constant follows
-	const uint8_t setup_command = 0b10100111;
-	const uint8_t time_constant = 239;
+	const uint8 setup_command = 0b10100111;
+	const uint8 time_constant = 239;
 
 	ctc_channel_0 = setup_command;
 	ctc_channel_0 = time_constant;

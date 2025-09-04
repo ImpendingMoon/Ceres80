@@ -20,12 +20,22 @@
 
 ## Data Structures:
 
+### Typedefs
+```c
+typedef signed char int8;
+typedef unsigned char uint8;
+typedef signed int int16;
+typedef unsigned int uint16;
+typedef signed long int32;
+typedef unsigned long uint32;
+```
+
 ### ButtonState:
 ```c
 struct ButtonState
 {
-    uint8_t pressed; // Bitmask of buttons currently pressed
-    uint8_t changed; // Bitmask of buttons changed since last read
+    uint8 pressed; // Bitmask of buttons currently pressed
+    uint8 changed; // Bitmask of buttons changed since last read
 };
 ```
 Buttons are, from LSB to MSB: Left (0), Right, Up, Down, A, B, Start, Select (7)
@@ -34,8 +44,8 @@ Buttons are, from LSB to MSB: Left (0), Right, Up, Down, A, B, Start, Select (7)
 ```c
 struct Point
 {
-    uint8_t x;
-    uint8_t y;
+    uint8 x;
+    uint8 y;
 };
 ```
 
@@ -43,15 +53,15 @@ struct Point
 ```c
 struct Bitmap
 {
-    uint8_t x; // Bitmap width in tiles (8 pixels)
-    uint8_t y; // Bitmap height in pixels
-    uint8_t* data; // Pointer to pixel data
+    uint8 x; // Bitmap width in tiles (8 pixels)
+    uint8 y; // Bitmap height in pixels
+    uint8* data; // Pointer to pixel data
 };
 ```
 
 ### Sprite:
 ```c
-typedef Sprite Bitmap;
+typedef Bitmap Sprite;
 ```
 Sprites treat the `x` field as pixels, not tiles.
 
@@ -78,6 +88,14 @@ C-style NULL-terminated ASCII.
 
 - `0x10`: `int random(void)`
     - Returns a random 16-bit integer.
+    
+- `0x11`: `int mulbyte(unsigned char a, unsigned char b)`
+    - 8-bit multiplication
+
+- `0x12`: `int divsbyte(char a, char b)`
+    - Signed 8-bit division
+    
+- `0x13`: `int divubyte(unsigned char a, unsigned char b)`
     
 ### User I/O
 

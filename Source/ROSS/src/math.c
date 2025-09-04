@@ -6,10 +6,11 @@
  */
 
 #include "math.h"
+#include "typedefs.h"
 #include "system.h"
 
-unsigned int rng_state_1;
-unsigned int rng_state_2;
+uint16 rng_state_1;
+uint16 rng_state_2;
 
 void rand_init(void)
 {
