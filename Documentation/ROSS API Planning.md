@@ -89,14 +89,6 @@ C-style NULL-terminated ASCII.
 - `0x10`: `int random(void)`
     - Returns a random 16-bit integer.
     
-- `0x11`: `int mulbyte(unsigned char a, unsigned char b)`
-    - 8-bit multiplication
-
-- `0x12`: `int divsbyte(char a, char b)`
-    - Signed 8-bit division
-    
-- `0x13`: `int divubyte(unsigned char a, unsigned char b)`
-    
 ### User I/O
 
 - `0x20`: `ButtonState read_buttons(void)`
