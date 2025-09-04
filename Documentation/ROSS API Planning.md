@@ -76,7 +76,7 @@ C-style NULL-terminated ASCII.
     
 ### Math and Conversion
 
-- `0x10`: `int rand(void)`
+- `0x10`: `int random(void)`
     - Returns a random 16-bit integer.
     
 ### User I/O

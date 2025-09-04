@@ -11,6 +11,7 @@
 .globl _get_version
 .globl _sleep
 .globl _get_uptime
+.globl _random
 
 invalid_call:
     ld a, #-1
@@ -34,7 +35,7 @@ call_table:
     .dw invalid_call
     .dw invalid_call
     .dw invalid_call
-    .dw invalid_call
+    .dw _random
     .dw invalid_call
     .dw invalid_call
     .dw invalid_call

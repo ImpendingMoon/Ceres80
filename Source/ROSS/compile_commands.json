@@ -28,5 +28,20 @@
    "build/obj/system.c.rel"
   ],
   "file": "src/system.c"
+ },
+ {
+  "directory": "/home/leif/Development/Ceres80/Source/ROSS",
+  "arguments": [
+   "sdcc",
+   "-mz80",
+   "-c",
+   "--reserve-regs-iy",
+   "--opt-code-speed",
+   "--std-sdcc99",
+   "src/math.c",
+   "-o",
+   "build/obj/math.c.rel"
+  ],
+  "file": "src/math.c"
  }
 ]
