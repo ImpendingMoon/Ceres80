@@ -12,7 +12,7 @@ AS := sdasz80
 LD := sdcc
 HEX := makebin
 
-CFLAGS := -mz80 -c --reserve-regs-iy --opt-code-speed --std-sdcc99
+CFLAGS := -mz80 -c --reserve-regs-iy --opt-code-speed --max-allocs-per-node 1000000 --std-sdcc99
 AFLAGS := -g
 LFLAGS := -mz80 --reserve-regs-iy --no-std-crt0 --code-loc 0x003B --data-loc 0xF980 --constseg _CODE
 

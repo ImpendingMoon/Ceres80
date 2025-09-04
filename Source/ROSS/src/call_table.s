@@ -12,6 +12,8 @@
 .globl _sleep
 .globl _get_uptime
 .globl _random
+.globl _fb_clear
+.globl _fb_flush
 
 invalid_call:
     ld a, #-1

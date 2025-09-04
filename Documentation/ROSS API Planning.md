@@ -89,13 +89,15 @@ C-style NULL-terminated ASCII.
 - `0x10`: `int random(void)`
     - Returns a random 16-bit integer.
     
-### User I/O
+### Input
 
 - `0x20`: `ButtonState read_buttons(void)`
     - Reads the current button state with debouncing.
 
 - `0x21`: `void wait_for_buttons(char bitmask)`
     - Waits for any button set to 1 in the bitmask to be pressed.
+    
+### Graphics
     
 - `0x21`: `void fb_clear(void)`
     - Clears the framebuffer.

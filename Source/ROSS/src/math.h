@@ -1,7 +1,7 @@
 /**
  * @file math.h
  * @brief Functions and variables relating to the Math set of System Calls
- *
+ * Internal header, not for application use
  * @license GPL-3.0-or-later
  */
 

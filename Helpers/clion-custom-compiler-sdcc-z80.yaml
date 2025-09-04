@@ -59,4 +59,5 @@ compilers:
 #define __sfr unsigned char
 #define __at(x)
 #define __sdcccall(x)
+#define __critical
 "
